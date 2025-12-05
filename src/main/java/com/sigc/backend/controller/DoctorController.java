@@ -3,6 +3,8 @@ package com.sigc.backend.controller;
 import com.sigc.backend.application.mapper.DoctorMapper;
 import com.sigc.backend.application.service.DoctorApplicationService;
 import com.sigc.backend.domain.model.Doctor;
+import com.sigc.backend.dto.DoctorCreateRequest;
+import com.sigc.backend.dto.DoctorUpdateRequest;
 import com.sigc.backend.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -62,7 +64,8 @@ public class DoctorController {
         }
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/multipart", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Crear doctor con imagen", description = "Crea un nuevo doctor con upload de imagen")
     public ResponseEntity<?> crear(
             @RequestParam("nombre") String nombre,
             @RequestParam("apellido") String apellido,
@@ -83,6 +86,7 @@ public class DoctorController {
                     .telefono(telefono)
                     .correo(correo)
                     .especialidadId(especialidadId)
+                    .cupoPacientes(10)
                     .build();
 
             if (imagen != null && !imagen.isEmpty()) {
@@ -120,8 +124,167 @@ public class DoctorController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(
+    // ================================================
+    // ENDPOINTS JSON (SIN IMAGEN)
+    // ================================================
+    
+    @PostMapping(value = "/json", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Crear doctor (JSON)", description = "Crea un nuevo doctor sin imagen usando JSON")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Doctor creado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+        @ApiResponse(responseCode = "401", description = "No autorizado")
+    })
+    public ResponseEntity<?> crearConJson(@RequestBody DoctorCreateRequest request) {
+        try {
+            log.info("📥 POST /doctores (JSON) - Crear doctor");
+            log.info("  - Datos recibidos: {}", request);
+            
+            // Usar apellido genérico si no viene especificado
+            String apellido = request.getApellido() != null && !request.getApellido().isEmpty() 
+                ? request.getApellido() 
+                : "N/A";
+            
+            String telefono = request.getTelefono() != null && !request.getTelefono().isEmpty() 
+                ? request.getTelefono() 
+                : "0000000000";
+            
+            String correo = request.getCorreo() != null && !request.getCorreo().isEmpty() 
+                ? request.getCorreo() 
+                : "noasignado@sigc.local";
+            
+            // Determinar especialidadId - si viene especialidad (nombre), usar default
+            Long especialidadId = request.getEspecialidadId() != null 
+                ? request.getEspecialidadId() 
+                : 1L; // Default a medicina general
+            
+            Doctor doctor = Doctor.builder()
+                    .nombre(request.getNombre())
+                    .apellido(apellido)
+                    .telefono(telefono)
+                    .correo(correo)
+                    .especialidadId(especialidadId)
+                    .cupoPacientes(10)
+                    .build();
+
+            Doctor saved = doctorApplicationService.createDoctor(doctor);
+            log.info("✅ Doctor creado exitosamente con ID: {}", saved.getIdDoctor());
+            
+            // Enviar notificación
+            try {
+                String mensaje = String.format("Nuevo doctor registrado: Dr. %s %s", 
+                    saved.getNombre(), saved.getApellido());
+                notificationService.notifyDoctorUpdate(
+                    String.valueOf(saved.getIdDoctor()), 
+                    mensaje, 
+                    doctorMapper.toJpaEntity(saved)
+                );
+                log.info("✅ Notificación de nuevo doctor enviada");
+            } catch (Exception notifEx) {
+                log.warn("⚠️ Error enviando notificación: {}", notifEx.getMessage());
+            }
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(doctorMapper.toJpaEntity(saved));
+
+        } catch (IllegalArgumentException e) {
+            log.warn("⚠️ Validación fallida al crear doctor: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            log.error("❌ Error al crear doctor: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al crear doctor: " + e.getMessage());
+        }
+    }
+
+    @PutMapping(value = "/{id}/json", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Actualizar doctor (JSON)", description = "Actualiza un doctor sin imagen usando JSON")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Doctor actualizado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+        @ApiResponse(responseCode = "404", description = "Doctor no encontrado"),
+        @ApiResponse(responseCode = "401", description = "No autorizado")
+    })
+    public ResponseEntity<?> actualizarConJson(
+            @PathVariable Long id, 
+            @RequestBody DoctorUpdateRequest request) {
+        try {
+            log.info("📥 PUT /doctores/{} (JSON)", id);
+            log.info("  - Datos recibidos: {}", request);
+            
+            Doctor existente = doctorApplicationService.getDoctorById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Doctor no encontrado"));
+
+            // Actualizar campo nombre si viene en el request
+            if (request.getNombre() != null && !request.getNombre().trim().isEmpty()) {
+                existente.setNombre(request.getNombre().trim());
+            }
+            
+            // Actualizar campo apellido si viene en el request (sino mantener el existente)
+            if (request.getApellido() != null && !request.getApellido().trim().isEmpty()) {
+                existente.setApellido(request.getApellido().trim());
+            }
+            
+            // Actualizar campo telefono si viene en el request
+            if (request.getTelefono() != null && !request.getTelefono().trim().isEmpty()) {
+                existente.setTelefono(request.getTelefono().trim());
+            }
+            
+            // Actualizar campo correo si viene en el request
+            if (request.getCorreo() != null && !request.getCorreo().trim().isEmpty()) {
+                existente.setCorreo(request.getCorreo().trim());
+            }
+            
+            // Actualizar especialidadId si viene en el request (sino usar especialidad por nombre o mantener)
+            if (request.getEspecialidadId() != null) {
+                existente.setEspecialidadId(request.getEspecialidadId());
+            }
+            
+            // Actualizar cupoPacientes si viene en el request
+            if (request.getCupoPacientes() != null) {
+                existente.setCupoPacientes(request.getCupoPacientes());
+            }
+
+            Doctor doctorGuardado = doctorApplicationService.updateDoctor(id, existente);
+            log.info("✅ Doctor actualizado exitosamente: {}", id);
+            
+            // Enviar notificación
+            try {
+                String mensaje = String.format("Información actualizada: Dr. %s %s", 
+                    doctorGuardado.getNombre(), doctorGuardado.getApellido());
+                notificationService.notifyDoctorUpdate(
+                    String.valueOf(id), 
+                    mensaje, 
+                    doctorMapper.toJpaEntity(doctorGuardado)
+                );
+                log.info("✅ Notificación enviada");
+            } catch (Exception notifEx) {
+                log.warn("⚠️ Error enviando notificación: {}", notifEx.getMessage());
+            }
+            
+            return ResponseEntity.ok(doctorMapper.toJpaEntity(doctorGuardado));
+
+        } catch (IllegalArgumentException e) {
+            log.warn("⚠️ Error de validación: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            log.error("❌ Error al actualizar doctor: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al actualizar doctor: " + e.getMessage());
+        }
+    }
+
+    // ================================================
+    // ENDPOINTS MULTIPART (CON IMAGEN)
+    // ================================================
+
+    @PutMapping(value = "/{id}/multipart", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Actualizar doctor con imagen", description = "Actualiza un doctor con posibilidad de subir imagen")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Doctor actualizado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+        @ApiResponse(responseCode = "404", description = "Doctor no encontrado")
+    })
+    public ResponseEntity<?> actualizarConImagen(
             @PathVariable Long id,
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) String apellido,

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Endpoints Doctores</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif;
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .section { 
+            margin-bottom: 30px; 
+            padding: 15px; 
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .section h2 {
+            color: #007bff;
+            margin-top: 0;
+        }
+        input, textarea { 
+            width: 100%; 
+            padding: 8px; 
+            margin: 8px 0; 
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: Arial;
+        }
+        input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 8px 5px 8px 0; 
+            cursor: pointer; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        button:hover { 
+            background: #0056b3; 
+        }
+        button:active {
+            background: #004085;
+        }
+        pre { 
+            background: #f4f4f4; 
+            padding: 12px; 
+            overflow-x: auto;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .error { 
+            color: #d32f2f; 
+            background-color: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #d32f2f;
+        }
+        .success { 
+            color: #388e3c; 
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #388e3c;
+        }
+        .loading {
+            color: #1976d2;
+            font-style: italic;
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #1976d2;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test CRUD Doctores - API JSON</h1>
+        <div class="info-box">
+            <strong>ℹ️ Información:</strong> Esta página prueba los endpoints del backend. 
+            Todos los métodos incluyen validaciones de datos.
+        </div>
+
+        <!-- TEST GET -->
+        <div class="section">
+            <h2>1. GET - Listar Todos los Doctores</h2>
+            <button onclick="testGetDoctores()">🔍 GET /doctores</button>
+            <div id="getResult"></div>
+        </div>
+
+        <!-- TEST POST JSON -->
+        <div class="section">
+            <h2>2. POST - Crear Doctor (JSON)</h2>
+            <div class="grid">
+                <input id="postNombre" type="text" placeholder="Nombre" value="Carlos">
+                <input id="postApellido" type="text" placeholder="Apellido" value="Lopez">
+                <input id="postTelefono" type="text" placeholder="Teléfono (9 dígitos)" value="987654321">
+                <input id="postCorreo" type="email" placeholder="Correo" value="carlos@test.com">
+                <input id="postEspecialidad" type="number" placeholder="ID Especialidad" value="1" min="1">
+            </div>
+            <button onclick="testPostDoctor()">➕ POST /doctores/json</button>
+            <div id="postResult"></div>
+        </div>
+
+        <!-- TEST GET BY ID -->
+        <div class="section">
+            <h2>3. GET - Obtener Doctor por ID</h2>
+            <div class="grid">
+                <input id="getByIdId" type="number" placeholder="ID Doctor" value="1" min="1">
+            </div>
+            <button onclick="testGetDoctorById()">🔍 GET /doctores/{id}</button>
+            <div id="getByIdResult"></div>
+        </div>
+
+        <!-- TEST PUT JSON -->
+        <div class="section">
+            <h2>4. PUT - Actualizar Doctor (JSON)</h2>
+            <div class="grid">
+                <input id="putId" type="number" placeholder="ID Doctor a Actualizar" value="1" min="1">
+                <input id="putNombre" type="text" placeholder="Nuevo Nombre" value="Carlos Actualizado">
+                <input id="putApellido" type="text" placeholder="Nuevo Apellido" value="Lopez Actualizado">
+                <input id="putTelefono" type="text" placeholder="Nuevo Teléfono (9 dígitos)" value="999888777">
+                <input id="putCorreo" type="email" placeholder="Nuevo Correo" value="carlos.actualizado@test.com">
+                <input id="putEspecialidad" type="number" placeholder="Nueva Especialidad" value="2" min="1">
+            </div>
+            <button onclick="testPutDoctor()">✏️ PUT /doctores/{id}/json</button>
+            <div id="putResult"></div>
+        </div>
+
+        <!-- TEST DELETE -->
+        <div class="section">
+            <h2>5. DELETE - Eliminar Doctor</h2>
+            <div class="grid">
+                <input id="deleteId" type="number" placeholder="ID Doctor a Eliminar" value="4" min="1">
+            </div>
+            <button onclick="testDeleteDoctor()">🗑️ DELETE /doctores/{id}</button>
+            <div id="deleteResult"></div>
+        </div>
+
+        <!-- INFO ESPECIALIDADES -->
+        <div class="section">
+            <h2>📋 Especialidades Disponibles</h2>
+            <button onclick="loadEspecialidades()">📚 Cargar Especialidades</button>
+            <div id="especialidadesResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:8080';
+
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            const className = isError ? 'error' : 'success';
+            
+            let content = '';
+            if (typeof data === 'string') {
+                content = data;
+            } else {
+                content = JSON.stringify(data, null, 2);
+            }
+            
+            element.innerHTML = `<div class="${className}"><pre>${content}</pre></div>`;
+        }
+
+        function showLoading(elementId) {
+            document.getElementById(elementId).innerHTML = '<div class="loading">Cargando...</div>';
+        }
+
+        async function testGetDoctores() {
+            showLoading('getResult');
+            try {
+                const response = await fetch(`${BASE_URL}/doctores`);
+                if (!response.ok) {
+                    showResult('getResult', `Error ${response.status}: ${response.statusText}`, true);
+                    return;
+                }
+                const data = await response.json();
+                showResult('getResult', data, false);
+            } catch (error) {
+                showResult('getResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        async function testPostDoctor() {
+            const payload = {
+                nombre: document.getElementById('postNombre').value,
+                apellido: document.getElementById('postApellido').value,
+                telefono: document.getElementById('postTelefono').value,
+                correo: document.getElementById('postCorreo').value,
+                especialidadId: parseInt(document.getElementById('postEspecialidad').value)
+            };
+
+            // Validar
+            if (!payload.nombre || !payload.apellido || !payload.telefono || !payload.correo) {
+                showResult('postResult', 'Error: Todos los campos son requeridos', true);
+                return;
+            }
+
+            if (!/^\d{9}$/.test(payload.telefono)) {
+                showResult('postResult', 'Error: El teléfono debe tener 9 dígitos', true);
+                return;
+            }
+
+            showLoading('postResult');
+            try {
+                const response = await fetch(`${BASE_URL}/doctores/json`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                showResult('postResult', data, !response.ok);
+            } catch (error) {
+                showResult('postResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        async function testPutDoctor() {
+            const id = document.getElementById('putId').value;
+            const payload = {
+                nombre: document.getElementById('putNombre').value,
+                apellido: document.getElementById('putApellido').value,
+                telefono: document.getElementById('putTelefono').value,
+                correo: document.getElementById('putCorreo').value,
+                especialidadId: parseInt(document.getElementById('putEspecialidad').value)
+            };
+
+            // Validar
+            if (!payload.nombre || !payload.apellido || !payload.telefono || !payload.correo) {
+                showResult('putResult', 'Error: Todos los campos son requeridos', true);
+                return;
+            }
+
+            if (!/^\d{9}$/.test(payload.telefono)) {
+                showResult('putResult', 'Error: El teléfono debe tener 9 dígitos', true);
+                return;
+            }
+
+            showLoading('putResult');
+            try {
+                const response = await fetch(`${BASE_URL}/doctores/${id}/json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                showResult('putResult', data, !response.ok);
+            } catch (error) {
+                showResult('putResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        async function testGetDoctorById() {
+            const id = document.getElementById('getByIdId').value;
+            showLoading('getByIdResult');
+            try {
+                const response = await fetch(`${BASE_URL}/doctores/${id}`);
+                if (!response.ok) {
+                    showResult('getByIdResult', `Error ${response.status}: ${response.statusText}`, true);
+                    return;
+                }
+                const data = await response.json();
+                showResult('getByIdResult', data, false);
+            } catch (error) {
+                showResult('getByIdResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        async function testDeleteDoctor() {
+            const id = document.getElementById('deleteId').value;
+            if (!confirm(`¿Estás seguro de que quieres eliminar el doctor ${id}?`)) {
+                return;
+            }
+            showLoading('deleteResult');
+            try {
+                const response = await fetch(`${BASE_URL}/doctores/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                showResult('deleteResult', data, !response.ok);
+            } catch (error) {
+                showResult('deleteResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        async function loadEspecialidades() {
+            showLoading('especialidadesResult');
+            try {
+                const response = await fetch(`${BASE_URL}/especialidades`);
+                if (!response.ok) {
+                    showResult('especialidadesResult', `Error ${response.status}`, true);
+                    return;
+                }
+                const data = await response.json();
+                showResult('especialidadesResult', data, false);
+            } catch (error) {
+                showResult('especialidadesResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        // Cargar especialidades al abrir la página
+        window.addEventListener('load', () => {
+            console.log('Página cargada. Backend: ' + BASE_URL);
+        });
+    </script>
+</body>
+</html>

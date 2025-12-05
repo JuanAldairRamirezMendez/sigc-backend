@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Endpoints Doctores</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .section { margin-bottom: 30px; padding: 15px; border: 1px solid #ccc; }
+        input, textarea { width: 100%; padding: 5px; margin: 5px 0; box-sizing: border-box; }
+        button { padding: 10px 20px; margin: 5px 0; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #0056b3; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Test CRUD Doctores - JSON</h1>
+
+    <!-- TEST GET -->
+    <div class="section">
+        <h2>1. GET Doctores</h2>
+        <button onclick="testGetDoctores()">GET /doctores</button>
+        <div id="getResult"></div>
+    </div>
+
+    <!-- TEST POST JSON -->
+    <div class="section">
+        <h2>2. POST Doctor (JSON)</h2>
+        <input id="postNombre" type="text" placeholder="Nombre" value="Carlos">
+        <input id="postApellido" type="text" placeholder="Apellido" value="Lopez">
+        <input id="postTelefono" type="text" placeholder="Teléfono" value="987654321">
+        <input id="postCorreo" type="text" placeholder="Correo" value="carlos@test.com">
+        <input id="postEspecialidad" type="number" placeholder="ID Especialidad" value="1">
+        <button onclick="testPostDoctor()">POST /doctores/json</button>
+        <div id="postResult"></div>
+    </div>
+
+    <!-- TEST PUT JSON -->
+    <div class="section">
+        <h2>3. PUT Doctor (JSON)</h2>
+        <input id="putId" type="number" placeholder="ID Doctor" value="1">
+        <input id="putNombre" type="text" placeholder="Nombre" value="Carlos Actualizado">
+        <input id="putApellido" type="text" placeholder="Apellido" value="Lopez Actualizado">
+        <input id="putTelefono" type="text" placeholder="Teléfono" value="999888777">
+        <input id="putCorreo" type="text" placeholder="Correo" value="carlos.actualizado@test.com">
+        <input id="putEspecialidad" type="number" placeholder="ID Especialidad" value="2">
+        <button onclick="testPutDoctor()">PUT /doctores/{id}/json</button>
+        <div id="putResult"></div>
+    </div>
+
+    <!-- TEST GET BY ID -->
+    <div class="section">
+        <h2>4. GET Doctor por ID</h2>
+        <input id="getByIdId" type="number" placeholder="ID Doctor" value="1">
+        <button onclick="testGetDoctorById()">GET /doctores/{id}</button>
+        <div id="getByIdResult"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:8080/doctores';
+
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            const className = isError ? 'error' : 'success';
+            element.innerHTML = `<div class="${className}"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+        }
+
+        async function testGetDoctores() {
+            try {
+                const response = await fetch(BASE_URL);
+                const data = await response.json();
+                showResult('getResult', data, !response.ok);
+            } catch (error) {
+                showResult('getResult', error.message, true);
+            }
+        }
+
+        async function testPostDoctor() {
+            const payload = {
+                nombre: document.getElementById('postNombre').value,
+                apellido: document.getElementById('postApellido').value,
+                telefono: document.getElementById('postTelefono').value,
+                correo: document.getElementById('postCorreo').value,
+                especialidadId: parseInt(document.getElementById('postEspecialidad').value)
+            };
+
+            try {
+                console.log('Sending payload:', JSON.stringify(payload));
+                const response = await fetch(`${BASE_URL}/json`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                showResult('postResult', data, !response.ok);
+            } catch (error) {
+                showResult('postResult', error.message, true);
+            }
+        }
+
+        async function testPutDoctor() {
+            const id = document.getElementById('putId').value;
+            const payload = {
+                nombre: document.getElementById('putNombre').value,
+                apellido: document.getElementById('putApellido').value,
+                telefono: document.getElementById('putTelefono').value,
+                correo: document.getElementById('putCorreo').value,
+                especialidadId: parseInt(document.getElementById('putEspecialidad').value)
+            };
+
+            try {
+                console.log('Sending payload:', JSON.stringify(payload));
+                const response = await fetch(`${BASE_URL}/${id}/json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                showResult('putResult', data, !response.ok);
+            } catch (error) {
+                showResult('putResult', error.message, true);
+            }
+        }
+
+        async function testGetDoctorById() {
+            const id = document.getElementById('getByIdId').value;
+            try {
+                const response = await fetch(`${BASE_URL}/${id}`);
+                const data = await response.json();
+                showResult('getByIdResult', data, !response.ok);
+            } catch (error) {
+                showResult('getByIdResult', error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>
