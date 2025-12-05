@@ -5,6 +5,12 @@ import com.sigc.backend.dto.CambiarPasswordRequest;
 import com.sigc.backend.dto.CambiarPasswordResponse;
 import com.sigc.backend.security.JwtUtil;
 import com.sigc.backend.application.service.UserApplicationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +27,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/usuarios")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:5175"})
+@Tag(name = "Usuarios", description = "Gestión de usuarios del sistema (requiere autenticación de ADMIN)")
+@SecurityRequirement(name = "JWT")
 public class UsuarioController {
 
     @Autowired
@@ -33,6 +41,12 @@ public class UsuarioController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping
+    @Operation(summary = "Listar todos los usuarios", description = "Obtiene la lista completa de usuarios registrados en el sistema")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente"),
+        @ApiResponse(responseCode = "401", description = "No autorizado"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - se requiere rol ADMIN")
+    })
     public List<Usuario> listarUsuarios() {
         try {
             log.info("Listando todos los usuarios");
@@ -46,7 +60,15 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<?> crearUsuario(@RequestBody Usuario usuario) {
+    @Operation(summary = "Crear nuevo usuario", description = "Registra un nuevo usuario en el sistema")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Usuario creado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+        @ApiResponse(responseCode = "409", description = "Email o DNI ya registrado"),
+        @ApiResponse(responseCode = "401", description = "No autorizado"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - se requiere rol ADMIN")
+    })
+    public ResponseEntity<?> crearUsuario(@Valid @RequestBody Usuario usuario) {
         try {
             log.info("Creando nuevo usuario: {}", usuario.getEmail());
             Usuario saved = userApplicationService.createUser(usuario);

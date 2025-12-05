@@ -1,0 +1,83 @@
+package com.sigc.backend.security;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
+/**
+ * Filtro de autenticación JWT que intercepta todas las peticiones
+ * y valida el token JWT presente en el header Authorization
+ */
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
+        final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        final String userEmail;
+
+        // Verificar si el header Authorization existe y tiene el formato correcto
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Extraer el token JWT del header
+        jwt = authHeader.substring(7);
+
+        try {
+            // Extraer el email del usuario del token
+            userEmail = jwtUtil.getEmailFromToken(jwt);
+
+            // Verificar que el usuario no esté ya autenticado
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // Cargar los detalles del usuario desde la base de datos
+                UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(userEmail);
+
+                // Validar el token
+                if (jwtUtil.validateToken(jwt)) {
+                    // Crear el objeto de autenticación
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    // Establecer la autenticación en el contexto de seguridad
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    log.debug("Usuario autenticado exitosamente: {}", userEmail);
+                } else {
+                    log.warn("Token JWT inválido para usuario: {}", userEmail);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error procesando token JWT: {}", e.getMessage());
+        }
+
+        // Continuar con la cadena de filtros
+        filterChain.doFilter(request, response);
+    }
+}

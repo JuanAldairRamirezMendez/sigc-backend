@@ -17,6 +17,10 @@ public class Doctor {
     
     private Long idDoctor;
     private String nombre;
+    private String apellido;
+    private String telefono;
+    private String correo;
+    private Long especialidadId;
     private String especialidad;
     private int cupoPacientes;
     private String imagen;
@@ -26,7 +30,10 @@ public class Doctor {
      */
     public boolean isValid() {
         return nombre != null && !nombre.trim().isEmpty() 
-            && especialidad != null && !especialidad.trim().isEmpty()
+            && apellido != null && !apellido.trim().isEmpty()
+            && correo != null && !correo.trim().isEmpty()
+            && telefono != null && !telefono.trim().isEmpty()
+            && especialidadId != null
             && cupoPacientes >= 1 && cupoPacientes <= 20;
     }
     

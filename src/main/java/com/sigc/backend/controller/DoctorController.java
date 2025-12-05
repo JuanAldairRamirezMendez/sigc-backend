@@ -4,6 +4,12 @@ import com.sigc.backend.application.mapper.DoctorMapper;
 import com.sigc.backend.application.service.DoctorApplicationService;
 import com.sigc.backend.domain.model.Doctor;
 import com.sigc.backend.service.NotificationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,6 +30,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/doctores")
 @CrossOrigin(origins = {"http://localhost:5173"})
 @RequiredArgsConstructor
+@Tag(name = "Doctores", description = "Gestión de doctores del sistema")
+@SecurityRequirement(name = "JWT")
 public class DoctorController {
 
     private final DoctorApplicationService doctorApplicationService;
@@ -37,6 +45,11 @@ public class DoctorController {
     private final long MAX_SIZE = 5 * 1024 * 1024;
 
     @GetMapping
+    @Operation(summary = "Listar todos los doctores", description = "Obtiene la lista completa de doctores disponibles")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista de doctores obtenida exitosamente"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     public List<com.sigc.backend.model.Doctor> listar() {
         try {
             List<Doctor> doctors = doctorApplicationService.getAllDoctors();

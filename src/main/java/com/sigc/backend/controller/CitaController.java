@@ -4,6 +4,12 @@ import com.sigc.backend.security.JwtUtil;
 import com.sigc.backend.application.service.AppointmentApplicationService;
 import com.sigc.backend.domain.service.usecase.appointment.CreateAppointmentRequest;
 import com.sigc.backend.service.NotificationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +26,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/citas")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:5175"})
+@Tag(name = "Citas", description = "Gestión de citas médicas")
+@SecurityRequirement(name = "JWT")
 public class CitaController {
 
     @Autowired private JwtUtil jwtUtil;
@@ -27,6 +35,12 @@ public class CitaController {
     @Autowired private NotificationService notificationService;
 
     @GetMapping
+    @Operation(summary = "Listar todas las citas", description = "Obtiene la lista completa de citas registradas")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista de citas obtenida exitosamente"),
+        @ApiResponse(responseCode = "401", description = "No autorizado"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     public List<com.sigc.backend.application.mapper.CitaMapper.CitaDTO> listar() {
         try {
             log.info("Listando todas las citas");
@@ -40,6 +54,13 @@ public class CitaController {
     }
 
     @GetMapping("/usuario/{idUsuario}")
+    @Operation(summary = "Listar citas por usuario", description = "Obtiene todas las citas de un usuario específico")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Citas del usuario obtenidas exitosamente"),
+        @ApiResponse(responseCode = "401", description = "No autorizado"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     public List<com.sigc.backend.application.mapper.CitaMapper.CitaDTO> listarPorUsuario(@PathVariable Long idUsuario) {
         try {
             log.info("Listando citas del usuario ID: {}", idUsuario);

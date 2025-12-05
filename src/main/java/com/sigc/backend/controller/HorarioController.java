@@ -4,6 +4,11 @@ import com.sigc.backend.application.mapper.HorarioMapper;
 import com.sigc.backend.application.service.HorarioApplicationService;
 import com.sigc.backend.domain.model.Horario;
 import com.sigc.backend.service.NotificationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +28,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/horarios")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:5175"})
 @RequiredArgsConstructor
+@Tag(name = "Horarios", description = "Gestión de horarios de atención médica")
+@SecurityRequirement(name = "JWT")
 public class HorarioController {
 
     private final HorarioApplicationService horarioApplicationService;
@@ -30,6 +37,11 @@ public class HorarioController {
     private final NotificationService notificationService;
 
     @GetMapping
+    @Operation(summary = "Listar horarios disponibles", description = "Obtiene todos los horarios de atención disponibles")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista de horarios obtenida exitosamente"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     public List<com.sigc.backend.model.Horario> listar() {
         try {
             log.info("Listando todos los horarios");

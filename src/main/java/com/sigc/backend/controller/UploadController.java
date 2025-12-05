@@ -1,5 +1,10 @@
 package com.sigc.backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +19,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/uploads")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:5175"})
+@Tag(name = "Upload", description = "Gestión de archivos y subida de imágenes")
+@SecurityRequirement(name = "JWT")
 public class UploadController {
 
     // Carpeta raíz (no dentro de /src ni /resources)
@@ -22,6 +29,13 @@ public class UploadController {
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
     @PostMapping
+    @Operation(summary = "Subir archivo", description = "Sube una imagen para especialidades médicas")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Archivo subido exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Archivo inválido o demasiado grande"),
+        @ApiResponse(responseCode = "401", description = "No autorizado"),
+        @ApiResponse(responseCode = "500", description = "Error al guardar el archivo")
+    })
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
             if (file.isEmpty()) {

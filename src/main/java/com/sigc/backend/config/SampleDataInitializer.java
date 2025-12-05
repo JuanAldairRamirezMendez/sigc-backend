@@ -75,27 +75,33 @@ public class SampleDataInitializer implements CommandLineRunner {
         Doctor doctor1 = new Doctor();
         doctor1.setNombre("Juan Carlos");
         doctor1.setApellido("Pérez García");
-        doctor1.setCorreo("juan.perez@hospital.com");
         doctor1.setTelefono("987654321");
-        doctor1.setEspecialidad(medicinaGeneral);
+        doctor1.setCorreo("juan.perez@sigc.com");
+        doctor1.setEspecialidadId(medicinaGeneral.getIdEspecialidad());
+        doctor1.setEspecialidad(medicinaGeneral.getNombre());
+        doctor1.setCupoPacientes(10);
         doctorRepository.save(doctor1);
 
         // Doctor 2
         Doctor doctor2 = new Doctor();
         doctor2.setNombre("María Elena");
         doctor2.setApellido("Rodríguez López");
-        doctor2.setCorreo("maria.rodriguez@hospital.com");
         doctor2.setTelefono("987654322");
-        doctor2.setEspecialidad(pediatria);
+        doctor2.setCorreo("maria.rodriguez@sigc.com");
+        doctor2.setEspecialidadId(pediatria.getIdEspecialidad());
+        doctor2.setEspecialidad(pediatria.getNombre());
+        doctor2.setCupoPacientes(8);
         doctorRepository.save(doctor2);
 
         // Doctor 3
         Doctor doctor3 = new Doctor();
         doctor3.setNombre("Roberto");
         doctor3.setApellido("Fernández Silva");
-        doctor3.setCorreo("roberto.fernandez@hospital.com");
         doctor3.setTelefono("987654323");
-        doctor3.setEspecialidad(cardiologia);
+        doctor3.setCorreo("roberto.fernandez@sigc.com");
+        doctor3.setEspecialidadId(cardiologia.getIdEspecialidad());
+        doctor3.setEspecialidad(cardiologia.getNombre());
+        doctor3.setCupoPacientes(5);
         doctorRepository.save(doctor3);
 
         log.info("✅ 3 doctores creados");

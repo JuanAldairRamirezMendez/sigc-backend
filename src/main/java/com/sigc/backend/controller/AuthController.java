@@ -9,6 +9,11 @@ import com.sigc.backend.domain.service.usecase.auth.LoginResponse;
 import com.sigc.backend.domain.service.usecase.auth.ChangePasswordUseCase;
 import com.sigc.backend.application.service.AuthApplicationService;
 import com.sigc.backend.security.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +35,7 @@ import java.util.Map;
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:5175"})
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Autenticación", description = "Endpoints para login, registro y gestión de autenticación")
 public class AuthController {
 
     private final AuthApplicationService authApplicationService;
@@ -38,11 +44,17 @@ public class AuthController {
     /**
      * POST /auth/register
      * Registra un nuevo usuario en el sistema
-     * 
+     *
      * @param request Datos del usuario a registrar (validados automáticamente)
      * @return 201 Created con datos del usuario registrado
      */
     @PostMapping("/register")
+    @Operation(summary = "Registrar nuevo usuario", description = "Crea una nueva cuenta de usuario en el sistema")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+        @ApiResponse(responseCode = "409", description = "El email ya está registrado")
+    })
     public ResponseEntity<RegistroResponse> register(@Valid @RequestBody RegistroRequest request) {
         log.info("Recibida petición de registro para: {}", request.getEmail());
         
@@ -75,6 +87,11 @@ public class AuthController {
      * @return Token JWT y datos completos del usuario si las credenciales son válidas
      */
     @PostMapping("/login")
+    @Operation(summary = "Iniciar sesión", description = "Autentica usuario y retorna token JWT")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Login exitoso"),
+        @ApiResponse(responseCode = "401", description = "Credenciales inválidas")
+    })
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> credentials) {
         String email = credentials.get("email");
         String password = credentials.get("password");

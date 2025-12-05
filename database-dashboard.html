@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGC - Panel de Control de Base de Datos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: transform 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        tr:hover {
+            background: #f0f0f0;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .role-admin {
+            background: #cfe2ff;
+            color: #084298;
+        }
+        
+        .role-doctor {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .role-paciente {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-card h3 {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .number {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+        
+        .action-buttons button {
+            width: auto;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            margin: 0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            font-size: 1.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: auto;
+            margin: 0;
+            transform: none;
+        }
+        
+        .close-modal:hover {
+            color: #000;
+            transform: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 Panel de Control SIGC</h1>
+            <p>Visualización y verificación de la Base de Datos en tiempo real</p>
+        </header>
+        
+        <div class="content">
+            <!-- SECCIÓN: CONEXIÓN Y ESTADÍSTICAS -->
+            <div class="section full-width">
+                <h2>📊 Conexión y Estadísticas</h2>
+                
+                <div class="control-group">
+                    <label for="baseUrl">URL del Backend:</label>
+                    <input type="text" id="baseUrl" value="http://localhost:8080" placeholder="Ej: http://localhost:8080">
+                </div>
+                
+                <button class="btn-success" onclick="conectarBackend()">🔗 Conectar Backend</button>
+                
+                <div id="statusAlert" class="alert"></div>
+                
+                <div class="stats" id="stats" style="display: none;">
+                    <div class="stat-card">
+                        <h3>Total Usuarios</h3>
+                        <div class="number" id="totalUsuarios">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Doctores</h3>
+                        <div class="number" id="totalDoctores">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Pacientes</h3>
+                        <div class="number" id="totalPacientes">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Administradores</h3>
+                        <div class="number" id="totalAdmins">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SECCIÓN: GESTIÓN DE USUARIOS -->
+            <div class="section">
+                <h2>👥 Gestión de Usuarios</h2>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('crear-usuario')">Crear</button>
+                    <button class="tab-btn" onclick="switchTab('listar-usuarios')">Listar</button>
+                    <button class="tab-btn" onclick="switchTab('buscar-usuario')">Buscar</button>
+                </div>
+                
+                <div id="crear-usuario" class="tab-content active">
+                    <div class="control-group">
+                        <label for="nuevoNombre">Nombre:</label>
+                        <input type="text" id="nuevoNombre" placeholder="Juan Pérez">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="nuevoEmail">Email:</label>
+                        <input type="email" id="nuevoEmail" placeholder="juan@example.com">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="nuevoPassword">Contraseña:</label>
+                        <input type="password" id="nuevoPassword" placeholder="Min. 6 caracteres">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="nuevoDNI">DNI:</label>
+                        <input type="text" id="nuevoDNI" placeholder="12345678" maxlength="8">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="nuevoTelefono">Teléfono:</label>
+                        <input type="text" id="nuevoTelefono" placeholder="987654321" maxlength="9">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="nuevoRol">Rol:</label>
+                        <select id="nuevoRol">
+                            <option value="PACIENTE">Paciente</option>
+                            <option value="DOCTOR">Doctor</option>
+                            <option value="ADMIN">Administrador</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn-success" onclick="crearUsuario()">✅ Crear Usuario</button>
+                </div>
+                
+                <div id="listar-usuarios" class="tab-content">
+                    <button class="btn-secondary" onclick="cargarUsuarios()">🔄 Recargar Usuarios</button>
+                    <div class="table-container">
+                        <table id="usuariosTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usuariosBody">
+                                <tr><td colspan="6" class="loading">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="buscar-usuario" class="tab-content">
+                    <div class="control-group">
+                        <label for="buscarEmail">Buscar por Email:</label>
+                        <input type="text" id="buscarEmail" placeholder="juan@example.com">
+                    </div>
+                    <button class="btn-secondary" onclick="buscarUsuario()">🔍 Buscar</button>
+                    <div id="resultadoBusqueda" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+            
+            <!-- SECCIÓN: GESTIÓN DE DOCTORES -->
+            <div class="section">
+                <h2>👨‍⚕️ Gestión de Doctores</h2>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('listar-doctores')">Listar</button>
+                    <button class="tab-btn" onclick="switchTab('crear-doctor')">Crear</button>
+                </div>
+                
+                <div id="listar-doctores" class="tab-content active">
+                    <button class="btn-secondary" onclick="cargarDoctores()">🔄 Recargar Doctores</button>
+                    <div class="table-container">
+                        <table id="doctoresTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Especialidad</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="doctoresBody">
+                                <tr><td colspan="6" class="loading">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="crear-doctor" class="tab-content">
+                    <div class="control-group">
+                        <label for="doctorNombre">Nombre:</label>
+                        <input type="text" id="doctorNombre" placeholder="Dr. Juan Pérez">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="doctorEmail">Email:</label>
+                        <input type="email" id="doctorEmail" placeholder="doctor@example.com">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="doctorPassword">Contraseña:</label>
+                        <input type="password" id="doctorPassword" placeholder="Min. 6 caracteres">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="doctorEspecialidad">Especialidad:</label>
+                        <input type="text" id="doctorEspecialidad" placeholder="Cardiología">
+                    </div>
+                    
+                    <button class="btn-success" onclick="crearDoctor()">✅ Crear Doctor</button>
+                </div>
+            </div>
+            
+            <!-- SECCIÓN: GESTIÓN DE CITAS -->
+            <div class="section">
+                <h2>📅 Gestión de Citas</h2>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('listar-citas')">Listar</button>
+                    <button class="tab-btn" onclick="switchTab('crear-cita')">Crear</button>
+                </div>
+                
+                <div id="listar-citas" class="tab-content active">
+                    <button class="btn-secondary" onclick="cargarCitas()">🔄 Recargar Citas</button>
+                    <div class="table-container">
+                        <table id="citasTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Paciente</th>
+                                    <th>Doctor</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="citasBody">
+                                <tr><td colspan="7" class="loading">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="crear-cita" class="tab-content">
+                    <div class="control-group">
+                        <label for="citaPaciente">Paciente:</label>
+                        <select id="citaPaciente">
+                            <option value="">-- Seleccionar paciente --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="citaDoctor">Doctor:</label>
+                        <select id="citaDoctor">
+                            <option value="">-- Seleccionar doctor --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="citaFecha">Fecha:</label>
+                        <input type="date" id="citaFecha">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="citaHora">Hora:</label>
+                        <input type="time" id="citaHora">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="citaMotivo">Motivo:</label>
+                        <textarea id="citaMotivo" placeholder="Motivo de la cita" rows="3"></textarea>
+                    </div>
+                    
+                    <button class="btn-success" onclick="crearCita()">✅ Crear Cita</button>
+                </div>
+            </div>
+            
+            <!-- SECCIÓN: VERIFICACIÓN DE CRUD -->
+            <div class="section full-width">
+                <h2>✅ Verificación de CRUD</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                    <button class="btn-warning" onclick="verificarCRUD('usuarios')">📝 Verificar Usuarios</button>
+                    <button class="btn-warning" onclick="verificarCRUD('doctores')">👨‍⚕️ Verificar Doctores</button>
+                    <button class="btn-warning" onclick="verificarCRUD('citas')">📅 Verificar Citas</button>
+                    <button class="btn-warning" onclick="verificarCRUD('especializaciones')">🏥 Verificar Especialidades</button>
+                </div>
+                
+                <div id="crudResultado" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MODAL PARA EDITAR -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                Editar Usuario
+                <button class="close-modal" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div id="editForm"></div>
+        </div>
+    </div>
+    
+    <script>
+        let baseUrl = 'http://localhost:8080';
+        let token = '';
+        
+        // Cambiar entre pestañas
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // Conectar al backend
+        async function conectarBackend() {
+            baseUrl = document.getElementById('baseUrl').value;
+            const alert = document.getElementById('statusAlert');
+            
+            try {
+                const response = await fetch(`${baseUrl}/auth/health`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    alert.innerHTML = '<strong>✅ Conectado al backend con éxito!</strong>';
+                    alert.className = 'alert alert-success';
+                    document.getElementById('stats').style.display = 'grid';
+                    
+                    // Login automático como admin
+                    await loginAsAdmin();
+                    
+                    // Cargar datos iniciales
+                    cargarEstadisticas();
+                    cargarUsuarios();
+                    cargarDoctores();
+                    cargarCitas();
+                } else {
+                    alert.innerHTML = '❌ No se pudo conectar. Verifica que el backend esté corriendo.';
+                    alert.className = 'alert alert-error';
+                }
+            } catch (error) {
+                alert.innerHTML = `❌ Error: ${error.message}`;
+                alert.className = 'alert alert-error';
+            }
+        }
+        
+        // Login como admin
+        async function loginAsAdmin() {
+            try {
+                const response = await fetch(`${baseUrl}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@sigc.com',
+                        password: 'Admin123456'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    token = data.token || data.access_token || '';
+                    console.log('Token obtenido');
+                } else {
+                    console.log('No se pudo obtener token automático. Algunas funciones requerirán autenticación manual.');
+                }
+            } catch (error) {
+                console.log('Error en login automático:', error);
+            }
+        }
+        
+        // Cargar estadísticas
+        async function cargarEstadisticas() {
+            try {
+                const response = await fetch(`${baseUrl}/api/usuarios`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const usuarios = await response.json();
+                    
+                    document.getElementById('totalUsuarios').textContent = usuarios.length;
+                    document.getElementById('totalDoctores').textContent = usuarios.filter(u => u.rol === 'DOCTOR').length;
+                    document.getElementById('totalPacientes').textContent = usuarios.filter(u => u.rol === 'PACIENTE').length;
+                    document.getElementById('totalAdmins').textContent = usuarios.filter(u => u.rol === 'ADMIN').length;
+                }
+            } catch (error) {
+                console.error('Error al cargar estadísticas:', error);
+            }
+        }
+        
+        // Cargar usuarios
+        async function cargarUsuarios() {
+            try {
+                const response = await fetch(`${baseUrl}/api/usuarios`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const usuarios = await response.json();
+                    const tbody = document.getElementById('usuariosBody');
+                    
+                    tbody.innerHTML = usuarios.map(u => `
+                        <tr>
+                            <td>${u.id_usuario || u.id}</td>
+                            <td>${u.nombre}</td>
+                            <td>${u.email}</td>
+                            <td><span class="role-badge role-${u.rol.toLowerCase()}">${u.rol}</span></td>
+                            <td><span class="status-badge ${u.activo ? 'status-active' : 'status-inactive'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
+                            <td class="action-buttons">
+                                <button class="btn-secondary" onclick="editarUsuario(${u.id_usuario || u.id})">✏️</button>
+                                <button class="btn-danger" onclick="eliminarUsuario(${u.id_usuario || u.id})">🗑️</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error al cargar usuarios:', error);
+                document.getElementById('usuariosBody').innerHTML = '<tr><td colspan="6" class="alert alert-error">Error al cargar</td></tr>';
+            }
+        }
+        
+        // Crear usuario
+        async function crearUsuario() {
+            const nombre = document.getElementById('nuevoNombre').value;
+            const email = document.getElementById('nuevoEmail').value;
+            const password = document.getElementById('nuevoPassword').value;
+            const dni = document.getElementById('nuevoDNI').value;
+            const telefono = document.getElementById('nuevoTelefono').value;
+            const rol = document.getElementById('nuevoRol').value;
+            
+            if (!nombre || !email || !password || !dni || !telefono) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${baseUrl}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, email, password, dni, telefono, rol })
+                });
+                
+                if (response.ok) {
+                    alert('✅ Usuario creado exitosamente');
+                    document.getElementById('nuevoNombre').value = '';
+                    document.getElementById('nuevoEmail').value = '';
+                    document.getElementById('nuevoPassword').value = '';
+                    document.getElementById('nuevoDNI').value = '';
+                    document.getElementById('nuevoTelefono').value = '';
+                    
+                    cargarUsuarios();
+                    cargarEstadisticas();
+                } else {
+                    const error = await response.json();
+                    alert(`❌ Error: ${error.message || 'No se pudo crear el usuario'}`);
+                }
+            } catch (error) {
+                alert(`❌ Error: ${error.message}`);
+            }
+        }
+        
+        // Buscar usuario
+        async function buscarUsuario() {
+            const email = document.getElementById('buscarEmail').value;
+            const resultado = document.getElementById('resultadoBusqueda');
+            
+            if (!email) {
+                alert('Ingresa un email para buscar');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/usuarios/email/${email}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const usuario = await response.json();
+                    resultado.innerHTML = `
+                        <div class="alert alert-info" style="display: block;">
+                            <strong>Resultado:</strong><br>
+                            <strong>ID:</strong> ${usuario.id_usuario || usuario.id}<br>
+                            <strong>Nombre:</strong> ${usuario.nombre}<br>
+                            <strong>Email:</strong> ${usuario.email}<br>
+                            <strong>DNI:</strong> ${usuario.dni}<br>
+                            <strong>Teléfono:</strong> ${usuario.telefono}<br>
+                            <strong>Rol:</strong> ${usuario.rol}<br>
+                            <strong>Estado:</strong> ${usuario.activo ? 'Activo' : 'Inactivo'}<br>
+                            <strong>Fecha de Registro:</strong> ${usuario.fecha_registro}
+                        </div>
+                    `;
+                } else {
+                    resultado.innerHTML = '<div class="alert alert-error" style="display: block;">Usuario no encontrado</div>';
+                }
+            } catch (error) {
+                resultado.innerHTML = `<div class="alert alert-error" style="display: block;">Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Cargar doctores
+        async function cargarDoctores() {
+            try {
+                const response = await fetch(`${baseUrl}/api/doctores`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const doctores = await response.json();
+                    const tbody = document.getElementById('doctoresBody');
+                    const selectDoctor = document.getElementById('citaDoctor');
+                    
+                    tbody.innerHTML = doctores.map(d => `
+                        <tr>
+                            <td>${d.id_doctor || d.id}</td>
+                            <td>${d.nombre}</td>
+                            <td>${d.email}</td>
+                            <td>${d.especialidad || 'N/A'}</td>
+                            <td><span class="status-badge ${d.activo ? 'status-active' : 'status-inactive'}">${d.activo ? 'Activo' : 'Inactivo'}</span></td>
+                            <td class="action-buttons">
+                                <button class="btn-secondary" onclick="editarDoctor(${d.id_doctor || d.id})">✏️</button>
+                                <button class="btn-danger" onclick="eliminarDoctor(${d.id_doctor || d.id})">🗑️</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    
+                    selectDoctor.innerHTML = '<option value="">-- Seleccionar doctor --</option>' + 
+                        doctores.map(d => `<option value="${d.id_doctor || d.id}">${d.nombre}</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error al cargar doctores:', error);
+            }
+        }
+        
+        // Crear doctor
+        async function crearDoctor() {
+            const nombre = document.getElementById('doctorNombre').value;
+            const email = document.getElementById('doctorEmail').value;
+            const password = document.getElementById('doctorPassword').value;
+            const especialidad = document.getElementById('doctorEspecialidad').value;
+            
+            if (!nombre || !email || !password || !especialidad) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${baseUrl}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre,
+                        email,
+                        password,
+                        dni: '00000000',
+                        telefono: '000000000',
+                        rol: 'DOCTOR'
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('✅ Doctor creado exitosamente');
+                    document.getElementById('doctorNombre').value = '';
+                    document.getElementById('doctorEmail').value = '';
+                    document.getElementById('doctorPassword').value = '';
+                    document.getElementById('doctorEspecialidad').value = '';
+                    
+                    cargarDoctores();
+                    cargarEstadisticas();
+                } else {
+                    alert('❌ Error al crear doctor');
+                }
+            } catch (error) {
+                alert(`❌ Error: ${error.message}`);
+            }
+        }
+        
+        // Cargar citas
+        async function cargarCitas() {
+            try {
+                const response = await fetch(`${baseUrl}/api/citas`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const citas = await response.json();
+                    const tbody = document.getElementById('citasBody');
+                    const selectPaciente = document.getElementById('citaPaciente');
+                    
+                    tbody.innerHTML = citas.map(c => `
+                        <tr>
+                            <td>${c.id_cita || c.id}</td>
+                            <td>${c.paciente?.nombre || c.pacienteName || 'N/A'}</td>
+                            <td>${c.doctor?.nombre || c.doctorName || 'N/A'}</td>
+                            <td>${c.fecha}</td>
+                            <td>${c.hora}</td>
+                            <td><span class="status-badge status-active">${c.estado || 'Pendiente'}</span></td>
+                            <td class="action-buttons">
+                                <button class="btn-secondary" onclick="editarCita(${c.id_cita || c.id})">✏️</button>
+                                <button class="btn-danger" onclick="eliminarCita(${c.id_cita || c.id})">🗑️</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    
+                    // Cargar pacientes para el select
+                    const usuariosResponse = await fetch(`${baseUrl}/api/usuarios`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (usuariosResponse.ok) {
+                        const usuarios = await usuariosResponse.json();
+                        const pacientes = usuarios.filter(u => u.rol === 'PACIENTE');
+                        selectPaciente.innerHTML = '<option value="">-- Seleccionar paciente --</option>' +
+                            pacientes.map(p => `<option value="${p.id_usuario || p.id}">${p.nombre}</option>`).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error al cargar citas:', error);
+            }
+        }
+        
+        // Crear cita
+        async function crearCita() {
+            const pacienteId = document.getElementById('citaPaciente').value;
+            const doctorId = document.getElementById('citaDoctor').value;
+            const fecha = document.getElementById('citaFecha').value;
+            const hora = document.getElementById('citaHora').value;
+            const motivo = document.getElementById('citaMotivo').value;
+            
+            if (!pacienteId || !doctorId || !fecha || !hora) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/citas`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        id_paciente: pacienteId,
+                        id_doctor: doctorId,
+                        fecha,
+                        hora,
+                        motivo,
+                        estado: 'PENDIENTE'
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('✅ Cita creada exitosamente');
+                    document.getElementById('citaPaciente').value = '';
+                    document.getElementById('citaDoctor').value = '';
+                    document.getElementById('citaFecha').value = '';
+                    document.getElementById('citaHora').value = '';
+                    document.getElementById('citaMotivo').value = '';
+                    
+                    cargarCitas();
+                } else {
+                    alert('❌ Error al crear cita');
+                }
+            } catch (error) {
+                alert(`❌ Error: ${error.message}`);
+            }
+        }
+        
+        // Verificar CRUD
+        async function verificarCRUD(modulo) {
+            const resultado = document.getElementById('crudResultado');
+            resultado.innerHTML = '<div class="loading"><div class="spinner"></div>Verificando...</div>';
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/debug/crud/${modulo}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultado.innerHTML = `
+                        <div class="alert alert-success" style="display: block;">
+                            <h3>✅ Verificación CRUD - ${modulo.toUpperCase()}</h3>
+                            <pre style="background: #f0f0f0; padding: 10px; border-radius: 5px; overflow-x: auto;">
+${JSON.stringify(data, null, 2)}
+                            </pre>
+                        </div>
+                    `;
+                } else {
+                    resultado.innerHTML = '<div class="alert alert-error" style="display: block;">No se pudo verificar el CRUD. Endpoint no disponible.</div>';
+                }
+            } catch (error) {
+                resultado.innerHTML = `<div class="alert alert-error" style="display: block;">Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Funciones auxiliares (stubs)
+        function editarUsuario(id) {
+            alert('Función editar usuario: ' + id + ' (por implementar)');
+        }
+        
+        function eliminarUsuario(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+                alert('Usuario ' + id + ' eliminado (por implementar)');
+            }
+        }
+        
+        function editarDoctor(id) {
+            alert('Función editar doctor: ' + id + ' (por implementar)');
+        }
+        
+        function eliminarDoctor(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este doctor?')) {
+                alert('Doctor ' + id + ' eliminado (por implementar)');
+            }
+        }
+        
+        function editarCita(id) {
+            alert('Función editar cita: ' + id + ' (por implementar)');
+        }
+        
+        function eliminarCita(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta cita?')) {
+                alert('Cita ' + id + ' eliminada (por implementar)');
+            }
+        }
+        
+        function cerrarModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+        
+        // Iniciar la aplicación
+        window.addEventListener('load', () => {
+            console.log('Dashboard cargado. Haz clic en "Conectar Backend" para comenzar.');
+        });
+    </script>
+</body>
+</html>

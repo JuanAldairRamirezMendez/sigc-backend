@@ -3,12 +3,19 @@ package com.sigc.backend.controller;
 import com.sigc.backend.application.service.UserApplicationService;
 import com.sigc.backend.domain.model.Usuario;
 import com.sigc.backend.security.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +27,8 @@ import java.util.Map;
 @RequestMapping("/auth")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:5175"})
 @RequiredArgsConstructor
+@Tag(name = "Autenticación", description = "Endpoints para login, registro y gestión de autenticación")
+@SecurityRequirement(name = "JWT")
 public class MeController {
 
     private final JwtUtil jwtUtil;
@@ -27,54 +36,34 @@ public class MeController {
 
     /**
      * GET /auth/me
-     * Obtiene los datos del usuario autenticado desde el token JWT
-     * Este endpoint extrae el ID del usuario del token automáticamente
+     * Obtiene los datos del usuario autenticado desde el contexto de seguridad
+     * Este endpoint usa la autenticación automática de Spring Security
      */
     @GetMapping("/me")
-    public ResponseEntity<?> obtenerUsuarioAutenticado(@RequestHeader("Authorization") String authHeader) {
+    @Operation(summary = "Obtener perfil de usuario autenticado", description = "Retorna los datos del usuario actualmente autenticado")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Perfil de usuario obtenido exitosamente"),
+        @ApiResponse(responseCode = "401", description = "Usuario no autenticado"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    public ResponseEntity<?> obtenerUsuarioAutenticado() {
         try {
             log.info("Obteniendo datos del usuario autenticado");
-            
-            // Extraer token del header (quitar "Bearer ")
-            String token = authHeader.substring(7);
 
-            // Validar token
-            if (!jwtUtil.validateToken(token)) {
-                log.warn("Token inválido o expirado");
+            // Obtener el usuario autenticado del contexto de seguridad
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
+                log.warn("Usuario no autenticado");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "Token inválido o expirado"));
+                        .body(Map.of("error", "Usuario no autenticado"));
             }
 
-            Long idUsuario;
-            String email;
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String email = userDetails.getUsername();
+
+            // Buscar usuario por email
+            Usuario usuario = userApplicationService.getUserByEmail(email);
             
-            try {
-                // Intentar obtener ID del token nuevo
-                idUsuario = jwtUtil.getUserIdFromToken(token);
-                email = jwtUtil.getEmailFromToken(token);
-                log.info("Token nuevo detectado - ID: {}, Email: {}", idUsuario, email);
-            } catch (Exception e) {
-                // Token antiguo con email en sub
-                log.warn("Token antiguo detectado, intentando obtener por email");
-                email = jwtUtil.getEmailFromToken(token);
-                
-                // Buscar usuario por email
-                try {
-                    Usuario usuarioTemp = userApplicationService.getUserByEmail(email);
-                    idUsuario = usuarioTemp.getId();
-                } catch (Exception ex) {
-                    log.error("Usuario no encontrado con email: {}", email);
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body(Map.of(
-                                "error", "Usuario no encontrado",
-                                "message", "Token antiguo detectado. Por favor, cierra sesión y vuelve a hacer login."
-                            ));
-                }
-            }
-
-            // Buscar usuario por ID
-            Usuario usuario = userApplicationService.getUserById(idUsuario);
-
             // Preparar respuesta con todos los datos
             Map<String, Object> response = new HashMap<>();
             response.put("idUsuario", usuario.getId());
@@ -101,7 +90,7 @@ public class MeController {
      * Alias de /auth/me para compatibilidad
      */
     @GetMapping("/profile")
-    public ResponseEntity<?> obtenerPerfil(@RequestHeader("Authorization") String authHeader) {
-        return obtenerUsuarioAutenticado(authHeader);
+    public ResponseEntity<?> obtenerPerfil() {
+        return obtenerUsuarioAutenticado();
     }
 }

@@ -27,6 +27,13 @@ CREATE TABLE IF NOT EXISTS usuarios (
     INDEX idx_activo (activo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Migración para tabla doctores (agregar columnas faltantes)
+ALTER TABLE doctores 
+ADD COLUMN IF NOT EXISTS apellido VARCHAR(100),
+ADD COLUMN IF NOT EXISTS telefono VARCHAR(9),
+ADD COLUMN IF NOT EXISTS correo VARCHAR(100),
+ADD COLUMN IF NOT EXISTS especialidad_id BIGINT;
+
 -- Verificar estructura
 DESCRIBE usuarios;
 

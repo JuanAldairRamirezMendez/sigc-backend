@@ -3,6 +3,11 @@ package com.sigc.backend.controller;
 import com.sigc.backend.application.mapper.EspecialidadMapper;
 import com.sigc.backend.application.service.EspecialidadApplicationService;
 import com.sigc.backend.domain.model.Especialidad;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,6 +30,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/especialidades")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:5175"})
 @RequiredArgsConstructor
+@Tag(name = "Especialidades", description = "Gestión de especialidades médicas")
+@SecurityRequirement(name = "JWT")
 public class EspecialidadController {
 
     private final EspecialidadApplicationService especialidadApplicationService;
@@ -36,6 +43,11 @@ public class EspecialidadController {
     private final long MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
     @GetMapping
+    @Operation(summary = "Listar especialidades", description = "Obtiene la lista completa de especialidades médicas disponibles")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista de especialidades obtenida exitosamente"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     public List<com.sigc.backend.model.Especialidad> listar() {
         try {
             log.info("Listando todas las especialidades");
@@ -51,15 +63,14 @@ public class EspecialidadController {
     }
 
     @PostMapping
-    public ResponseEntity<?> crear(
-            @RequestParam String nombre,
-            @RequestParam(required = false) String descripcion,
-            @RequestParam(value = "imagen", required = false) MultipartFile imagenFile) {
+    public ResponseEntity<?> crear(@RequestBody Map<String, String> request) {
         try {
             log.info("📥 POST /especialidades");
-            log.info("  - nombre: {}", nombre);
-            log.info("  - descripcion: {}", descripcion);
-            log.info("  - imagenFile: {}", imagenFile != null ? imagenFile.getOriginalFilename() : "null");
+            log.info("  - request: {}", request);
+            
+            String nombre = request.get("nombre");
+            String descripcion = request.get("descripcion");
+            String imagen = request.get("imagen");
             
             if (nombre == null || nombre.trim().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -74,12 +85,8 @@ public class EspecialidadController {
                 builder.descripcion(descripcion.trim());
             }
             
-            // Guardar archivo si viene
-            if (imagenFile != null && !imagenFile.isEmpty()) {
-                String imagenGuardada = guardarImagen(imagenFile);
-                if (imagenGuardada != null) {
-                    builder.imagen(imagenGuardada);
-                }
+            if (imagen != null && !imagen.trim().isEmpty()) {
+                builder.imagen(imagen.trim());
             }
             
             Especialidad especialidad = builder.build();
@@ -91,10 +98,6 @@ public class EspecialidadController {
             log.warn("⚠️ Error de validación: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", e.getMessage()));
-        } catch (IOException e) {
-            log.error("❌ Error al guardar imagen: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error al guardar imagen: " + e.getMessage()));
         } catch (Exception e) {
             log.error("❌ Error al crear especialidad: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -103,16 +106,14 @@ public class EspecialidadController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(
-            @PathVariable @NonNull Long id,
-            @RequestParam(required = false) String nombre,
-            @RequestParam(required = false) String descripcion,
-            @RequestParam(value = "imagen", required = false) MultipartFile imagenFile) {
+    public ResponseEntity<?> actualizar(@PathVariable @NonNull Long id, @RequestBody Map<String, String> request) {
         try {
             log.info("📥 PUT /especialidades/{}", id);
-            log.info("  - nombre: {}", nombre);
-            log.info("  - descripcion: {}", descripcion);
-            log.info("  - imagenFile: {}", imagenFile != null ? imagenFile.getOriginalFilename() : "null");
+            log.info("  - request: {}", request);
+            
+            String nombre = request.get("nombre");
+            String descripcion = request.get("descripcion");
+            String imagen = request.get("imagen");
             
             // Obtener especialidad existente
             Especialidad existente = especialidadApplicationService.getEspecialidadById(id)
@@ -126,12 +127,8 @@ public class EspecialidadController {
                 existente.setDescripcion(descripcion.trim());
             }
             
-            // Guardar archivo si viene
-            if (imagenFile != null && !imagenFile.isEmpty()) {
-                String imagenGuardada = guardarImagen(imagenFile);
-                if (imagenGuardada != null) {
-                    existente.setImagen(imagenGuardada);
-                }
+            if (imagen != null && !imagen.trim().isEmpty()) {
+                existente.setImagen(imagen.trim());
             }
             
             Especialidad actualizada = especialidadApplicationService.updateEspecialidad(id, existente);
@@ -142,10 +139,6 @@ public class EspecialidadController {
             log.warn("⚠️ Error de validación: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", e.getMessage()));
-        } catch (IOException e) {
-            log.error("❌ Error al guardar imagen: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error al guardar imagen: " + e.getMessage()));
         } catch (Exception e) {
             log.error("❌ Error al actualizar especialidad {}: {}", id, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

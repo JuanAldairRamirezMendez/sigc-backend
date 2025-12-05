@@ -18,6 +18,19 @@ public class Doctor {
     @NotBlank(message = "El nombre del doctor es obligatorio")
     private String nombre;
 
+    @NotBlank(message = "El apellido del doctor es obligatorio")
+    private String apellido;
+
+    @NotBlank(message = "El teléfono del doctor es obligatorio")
+    private String telefono;
+
+    @NotBlank(message = "El correo del doctor es obligatorio")
+    @Email(message = "El correo debe tener un formato válido")
+    private String correo;
+
+    @NotNull(message = "La especialidad es obligatoria")
+    private Long especialidadId;
+
     @NotBlank(message = "La especialidad es obligatoria")
     private String especialidad;
 

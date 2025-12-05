@@ -14,6 +14,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 /**
  * Configuración de seguridad de Spring Security
  * - Configura BCrypt para encriptación de contraseñas
@@ -24,6 +26,13 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    // Constructor para inyección de dependencias
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     // Encriptación con BCrypt
     @Bean
@@ -60,7 +69,7 @@ public class SecurityConfig {
             .formLogin(form -> form.disable())
             .authorizeHttpRequests(auth -> auth
                 // Endpoints públicos - sin autenticación
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/auth/login", "/auth/register").permitAll()
                 .requestMatchers("/test/**").permitAll() // ⭐️ TEMPORAL PARA DEBUGGING ⭐️
                 .requestMatchers("/api/especialidades/**", "/especialidades/**").permitAll()
                 // Permitir el endpoint de SockJS / WebSocket (handshake /info, etc.)
@@ -72,9 +81,13 @@ public class SecurityConfig {
                 .requestMatchers("/api/usuarios/**", "/usuarios/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers("/images/**").permitAll() // ⭐️ PERMITIR ARCHIVOS ESTÁTICOS ⭐️
+                // SWAGGER/OpenAPI Documentation - sin autenticación
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 // Otras peticiones exigen autenticación
                 .anyRequest().authenticated()
-            );
+            )
+            // Agregar filtro JWT antes del filtro de autenticación de usuario/contraseña
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
