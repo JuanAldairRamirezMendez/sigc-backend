@@ -1,7 +1,7 @@
 package com.sigc.backend.security;
 
 import com.sigc.backend.application.service.UserApplicationService;
-import com.sigc.backend.domain.model.Usuario;
+import com.sigc.backend.model.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

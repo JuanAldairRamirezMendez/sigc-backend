@@ -91,7 +91,7 @@ public class UsuarioController {
     public ResponseEntity<?> obtenerUsuario(@PathVariable String idOrEmail) {
         try {
             log.info("Obteniendo usuario: {}", idOrEmail);
-            com.sigc.backend.domain.model.Usuario usuario = null;
+            Usuario usuario = null;
             try {
                 Long id = Long.parseLong(idOrEmail);
                 log.info("Buscando usuario por ID: {}", id);
@@ -125,7 +125,7 @@ public class UsuarioController {
     public ResponseEntity<?> obtenerUsuarioPorEmail(@PathVariable String email) {
         try {
             log.info("Obteniendo usuario por email: {}", email);
-            com.sigc.backend.domain.model.Usuario usuario = userApplicationService.getUserByEmail(email);
+            Usuario usuario = userApplicationService.getUserByEmail(email);
             if (usuario != null) {
                 log.info("Usuario encontrado: {}", usuario.getId());
                 return ResponseEntity.ok(usuario);

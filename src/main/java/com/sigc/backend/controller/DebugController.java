@@ -49,8 +49,8 @@ public class DebugController {
             
             Map<String, Long> conteos = new HashMap<>();
             conteos.put("total", (long) usuarios.size());
-            conteos.put("activos", usuarios.stream().filter(Usuario::isActivo).count());
-            conteos.put("inactivos", usuarios.stream().filter(u -> !u.isActivo()).count());
+            conteos.put("activos", usuarios.stream().filter(u -> u.getActivo()).count());
+            conteos.put("inactivos", usuarios.stream().filter(u -> !u.getActivo()).count());
             conteos.put("admin", usuarios.stream().filter(u -> "ADMIN".equals(u.getRol())).count());
             conteos.put("doctores", usuarios.stream().filter(u -> "DOCTOR".equals(u.getRol())).count());
             conteos.put("pacientes", usuarios.stream().filter(u -> "PACIENTE".equals(u.getRol())).count());
@@ -62,7 +62,7 @@ public class DebugController {
                 "nombre", u.getNombre(),
                 "email", u.getEmail(),
                 "rol", u.getRol(),
-                "activo", u.isActivo()
+                "activo", u.getActivo()
             )).collect(Collectors.toList()));
             
         } catch (Exception e) {

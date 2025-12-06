@@ -1,7 +1,7 @@
 package com.sigc.backend.controller;
 
 import com.sigc.backend.application.service.UserApplicationService;
-import com.sigc.backend.domain.model.Usuario;
+import com.sigc.backend.model.Usuario;
 import com.sigc.backend.security.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

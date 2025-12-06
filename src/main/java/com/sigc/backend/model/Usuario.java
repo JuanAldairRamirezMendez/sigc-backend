@@ -54,7 +54,7 @@ public class Usuario {
     private String rol; // PACIENTE, DOCTOR, ADMIN
 
     @Column(nullable = false)
-    private boolean activo = true;
+    private Boolean activo = true;
 
     @CreationTimestamp
     @Column(name = "fecha_registro", updatable = false)
