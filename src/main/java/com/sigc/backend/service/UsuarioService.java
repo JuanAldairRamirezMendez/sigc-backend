@@ -56,9 +56,9 @@ public class UsuarioService {
         // Construir respuesta (sin password)
         return RegistroResponse.builder()
                 .idUsuario(usuarioGuardado.getId())
-                .nombre(usuarioGuardado.getNombre())
                 .email(usuarioGuardado.getEmail())
-                .mensaje("Usuario registrado exitosamente")
+                .token("")
+                .role(usuarioGuardado.getRole())
                 .build();
     }
 }
