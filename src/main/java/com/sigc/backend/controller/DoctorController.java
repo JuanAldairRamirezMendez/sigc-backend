@@ -1,7 +1,6 @@
 package com.sigc.backend.controller;
 
-import com.sigc.backend.application.mapper.DoctorMapper;
-import com.sigc.backend.application.service.DoctorApplicationService;
+import com.sigc.backend.application.service.EspecialidadApplicationService;
 import com.sigc.backend.domain.model.Doctor;
 import com.sigc.backend.dto.DoctorCreateRequest;
 import com.sigc.backend.dto.DoctorUpdateRequest;
@@ -38,6 +37,7 @@ public class DoctorController {
 
     private final DoctorApplicationService doctorApplicationService;
     private final DoctorMapper doctorMapper;
+    private final EspecialidadApplicationService especialidadApplicationService;
     private final NotificationService notificationService;
 
     @org.springframework.beans.factory.annotation.Value("${app.upload.dir:uploads/}")
@@ -80,12 +80,27 @@ public class DoctorController {
             log.info("  - correo: {}, telefono: {}", correo, telefono);
             log.info("  - especialidadId: {}", especialidadId);
             
+            // 🔍 Obtener el nombre de la especialidad
+            String nombreEspecialidad = null;
+            try {
+                var especialidad = especialidadApplicationService.getEspecialidadById(especialidadId);
+                if (especialidad.isPresent()) {
+                    nombreEspecialidad = especialidad.get().getNombre();
+                    log.info("  - especialidad encontrada: {}", nombreEspecialidad);
+                } else {
+                    log.warn("  - especialidad con ID {} no encontrada", especialidadId);
+                }
+            } catch (Exception e) {
+                log.warn("  - error obteniendo especialidad: {}", e.getMessage());
+            }
+            
             Doctor doctor = Doctor.builder()
                     .nombre(nombre)
                     .apellido(apellido)
                     .telefono(telefono)
                     .correo(correo)
                     .especialidadId(especialidadId)
+                    .especialidad(nombreEspecialidad)
                     .cupoPacientes(10)
                     .build();
 
@@ -158,12 +173,27 @@ public class DoctorController {
                 ? request.getEspecialidadId() 
                 : 1L; // Default a medicina general
             
+            // 🔍 Obtener el nombre de la especialidad
+            String nombreEspecialidad = null;
+            try {
+                var especialidad = especialidadApplicationService.getEspecialidadById(especialidadId);
+                if (especialidad.isPresent()) {
+                    nombreEspecialidad = especialidad.get().getNombre();
+                    log.info("  - especialidad encontrada: {}", nombreEspecialidad);
+                } else {
+                    log.warn("  - especialidad con ID {} no encontrada", especialidadId);
+                }
+            } catch (Exception e) {
+                log.warn("  - error obteniendo especialidad: {}", e.getMessage());
+            }
+            
             Doctor doctor = Doctor.builder()
                     .nombre(request.getNombre())
                     .apellido(apellido)
                     .telefono(telefono)
                     .correo(correo)
                     .especialidadId(especialidadId)
+                    .especialidad(nombreEspecialidad)
                     .cupoPacientes(10)
                     .build();
 
