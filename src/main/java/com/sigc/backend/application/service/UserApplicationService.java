@@ -1,7 +1,7 @@
 package com.sigc.backend.application.service;
 
 import com.sigc.backend.domain.exception.DomainException;
-import com.sigc.backend.domain.model.Usuario;
+import com.sigc.backend.model.Usuario;
 import com.sigc.backend.domain.port.IUsuarioRepository;
 import org.springframework.stereotype.Service;
 

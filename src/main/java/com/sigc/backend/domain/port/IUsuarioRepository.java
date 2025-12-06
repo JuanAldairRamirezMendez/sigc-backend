@@ -1,6 +1,6 @@
 package com.sigc.backend.domain.port;
 
-import com.sigc.backend.domain.model.Usuario;
+import com.sigc.backend.model.Usuario;
 import java.util.Optional;
 
 /**

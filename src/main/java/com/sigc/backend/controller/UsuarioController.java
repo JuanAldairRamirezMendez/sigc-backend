@@ -1,6 +1,6 @@
 package com.sigc.backend.controller;
 
-import com.sigc.backend.domain.model.Usuario;
+import com.sigc.backend.model.Usuario;
 import com.sigc.backend.dto.CambiarPasswordRequest;
 import com.sigc.backend.dto.CambiarPasswordResponse;
 import com.sigc.backend.security.JwtUtil;
