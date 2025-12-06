@@ -85,10 +85,18 @@ public class UserApplicationService {
     public Usuario updateUser(Long id, Usuario usuario) {
         var existente = usuarioRepository.findById(id)
                 .orElseThrow(() -> new DomainException("Usuario no encontrado", "USER_NOT_FOUND"));
-        existente.setNombre(usuario.getNombre());
-        existente.setEmail(usuario.getEmail());
-        existente.setRole(usuario.getRole());
-        existente.setActivo(usuario.getActivo());
+        if (usuario.getNombre() != null) {
+            existente.setNombre(usuario.getNombre());
+        }
+        if (usuario.getEmail() != null) {
+            existente.setEmail(usuario.getEmail());
+        }
+        if (usuario.getRole() != null && !usuario.getRole().trim().isEmpty()) {
+            existente.setRole(usuario.getRole());
+        }
+        if (usuario.getActivo() != null) {
+            existente.setActivo(usuario.getActivo());
+        }
         return usuarioRepository.save(existente);
     }
 
