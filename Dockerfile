@@ -1,11 +1,17 @@
 ### Dockerfile para backend Spring Boot
 FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /workspace
+
+# Copiar archivos de Maven primero para aprovechar cache de dependencias
 COPY pom.xml mvnw mvnw.cmd ./
 COPY .mvn .mvn
+
+# Copiar código fuente
 COPY src ./src
+
+# Hacer ejecutable mvnw y compilar
 RUN chmod +x mvnw || true
-RUN ./mvnw -B -DskipTests package
+RUN ./mvnw -B -DskipTests clean package
 
 FROM eclipse-temurin:21-jdk-jammy
 WORKDIR /app

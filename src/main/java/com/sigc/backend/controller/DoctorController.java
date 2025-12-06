@@ -1,5 +1,7 @@
 package com.sigc.backend.controller;
 
+import com.sigc.backend.application.mapper.DoctorMapper;
+import com.sigc.backend.application.service.DoctorApplicationService;
 import com.sigc.backend.application.service.EspecialidadApplicationService;
 import com.sigc.backend.domain.model.Doctor;
 import com.sigc.backend.dto.DoctorCreateRequest;
