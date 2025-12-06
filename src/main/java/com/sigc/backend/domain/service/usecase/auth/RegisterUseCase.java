@@ -95,7 +95,7 @@ public class RegisterUseCase {
         usuario.setNombre(request.getNombre());
         usuario.setDni(request.getDni());
         usuario.setTelefono(request.getTelefono());
-        usuario.setRole(request.getRol() != null ? request.getRol() : "USER");
+        usuario.setRole(request.getRol() != null ? request.getRol() : "PACIENTE");
         usuario.setActivo(true);
         return usuario;
     }
