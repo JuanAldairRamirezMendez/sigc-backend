@@ -36,4 +36,28 @@ public class RegistroRequest {
 
     @Pattern(regexp = "PACIENTE|DOCTOR|ADMIN", message = "El rol debe ser PACIENTE, DOCTOR o ADMIN")
     private String rol; // Opcional, default PACIENTE
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getDni() {
+        return dni;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public String getRol() {
+        return rol;
+    }
 }

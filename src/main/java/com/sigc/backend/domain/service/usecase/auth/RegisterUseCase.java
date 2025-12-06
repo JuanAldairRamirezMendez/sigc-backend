@@ -70,16 +70,16 @@ public class RegisterUseCase {
         // Nota: La creación del usuario será delegada al repositorio
         // Este caso de uso solo asegura la lógica de negocio
         var nuevoUsuario = crearUsuario(request, encryptedPassword);
-        usuarioRepository.save(nuevoUsuario);
+        var usuarioGuardado = usuarioRepository.save(nuevoUsuario);
         
         // PASO 5: Retornar confirmación
         // En registro, no devolvemos token inmediatamente
         // El usuario debe hacer login después
         return new LoginResponse(
-            0L,  // ID será asignado por la base de datos
+            usuarioGuardado.getId(),
             request.getEmail(),
             "",  // Sin token en registro
-            request.getRol() != null ? request.getRol() : "USER"
+            usuarioGuardado.getRole()
         );
     }
     

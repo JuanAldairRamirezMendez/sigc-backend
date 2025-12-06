@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class RegistroResponse {
     
     private Long idUsuario;
-    private String nombre;
     private String email;
-    private String mensaje;
+    private String token;
+    private String role;
 }
