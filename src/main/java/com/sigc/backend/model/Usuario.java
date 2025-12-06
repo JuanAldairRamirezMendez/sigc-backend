@@ -46,6 +46,9 @@ public class Usuario {
     @Column(nullable = false, length = 9)
     private String telefono;
 
+    @Column(length = 100)
+    private String apellido;
+
     @NotBlank(message = "El rol es obligatorio")
     @Column(nullable = false, length = 20)
     private String rol; // PACIENTE, DOCTOR, ADMIN
@@ -56,4 +59,16 @@ public class Usuario {
     @CreationTimestamp
     @Column(name = "fecha_registro", updatable = false)
     private LocalDateTime fechaRegistro;
+
+    // Additional methods for compatibility
+    public Long getId() { return this.idUsuario; }
+    public void setId(Long id) { this.idUsuario = id; }
+    public String getRole() { return this.rol; }
+    public void setRole(String role) { this.rol = role; }
+    public Boolean getActivo() { return this.activo; }
+    public void setActivo(Boolean activo) { this.activo = activo; }
+    public LocalDateTime getCreatedAt() { return this.fechaRegistro; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.fechaRegistro = createdAt; }
+    public LocalDateTime getUpdatedAt() { return this.fechaRegistro; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.fechaRegistro = updatedAt; }
 }

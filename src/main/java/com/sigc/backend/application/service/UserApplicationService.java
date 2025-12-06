@@ -38,7 +38,7 @@ public class UserApplicationService {
      * @param usuarioId ID del usuario
      * @return DTO del usuario
      */
-    public com.sigc.backend.domain.model.Usuario getUserById(Long usuarioId) {
+    public Usuario getUserById(Long usuarioId) {
         return usuarioRepository.findById(usuarioId)
             .orElseThrow(() -> new DomainException("Usuario no encontrado", "USER_NOT_FOUND"));
     }
@@ -49,7 +49,7 @@ public class UserApplicationService {
      * @param email Email del usuario
      * @return DTO del usuario
      */
-    public com.sigc.backend.domain.model.Usuario getUserByEmail(String email) {
+    public Usuario getUserByEmail(String email) {
         return usuarioRepository.findByEmail(email)
             .orElseThrow(() -> new DomainException("Usuario no encontrado", "USER_NOT_FOUND"));
     }

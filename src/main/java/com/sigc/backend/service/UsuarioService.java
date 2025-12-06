@@ -3,7 +3,7 @@ package com.sigc.backend.service;
 import com.sigc.backend.dto.RegistroRequest;
 import com.sigc.backend.dto.RegistroResponse;
 import com.sigc.backend.exception.EmailDuplicadoException;
-import com.sigc.backend.domain.model.Usuario;
+import com.sigc.backend.model.Usuario;
 import com.sigc.backend.domain.port.IUsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

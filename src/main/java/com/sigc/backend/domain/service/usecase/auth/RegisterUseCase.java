@@ -1,7 +1,7 @@
 package com.sigc.backend.domain.service.usecase.auth;
 
 import com.sigc.backend.domain.exception.EmailAlreadyRegisteredException;
-import com.sigc.backend.domain.model.Usuario;
+import com.sigc.backend.model.Usuario;
 import com.sigc.backend.domain.port.IUsuarioRepository;
 import com.sigc.backend.domain.service.validator.CredentialValidator;
 import com.sigc.backend.infrastructure.security.password.IPasswordEncoder;

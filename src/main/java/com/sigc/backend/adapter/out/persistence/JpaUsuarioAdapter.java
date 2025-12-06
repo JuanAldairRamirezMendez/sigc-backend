@@ -1,6 +1,6 @@
 package com.sigc.backend.adapter.out.persistence;
 
-import com.sigc.backend.domain.model.Usuario;
+import com.sigc.backend.model.Usuario;
 import com.sigc.backend.domain.port.IUsuarioRepository;
 import com.sigc.backend.repository.UsuarioRepository;
 import org.springframework.stereotype.Repository;
@@ -23,12 +23,12 @@ public class JpaUsuarioAdapter implements IUsuarioRepository {
         if (id == null) {
             return Optional.empty();
         }
-        return usuarioRepository.findById(id).map(this::toDomain);
+        return usuarioRepository.findById(id);
     }
 
     @Override
     public Optional<Usuario> findByEmail(String email) {
-        return Optional.ofNullable(usuarioRepository.findByEmail(email)).map(this::toDomain);
+        return Optional.ofNullable(usuarioRepository.findByEmail(email));
     }
 
     @Override
@@ -38,12 +38,7 @@ public class JpaUsuarioAdapter implements IUsuarioRepository {
 
     @Override
     public Usuario save(Usuario usuario) {
-        com.sigc.backend.model.Usuario entity = toEntity(usuario);
-        if (entity == null) {
-            throw new IllegalArgumentException("No se pudo convertir el usuario a entidad JPA");
-        }
-        com.sigc.backend.model.Usuario saved = usuarioRepository.save(entity);
-        return toDomain(saved);
+        return usuarioRepository.save(usuario);
     }
 
     @Override
@@ -53,7 +48,7 @@ public class JpaUsuarioAdapter implements IUsuarioRepository {
 
     @Override
     public List<Usuario> findAll() {
-        return usuarioRepository.findAll().stream().map(this::toDomain).collect(Collectors.toList());
+        return usuarioRepository.findAll();
     }
 
     @Override
@@ -61,44 +56,5 @@ public class JpaUsuarioAdapter implements IUsuarioRepository {
         if (id != null) {
             usuarioRepository.deleteById(id);
         }
-    }
-
-    // --- Mapping helpers ---
-    private Usuario toDomain(com.sigc.backend.model.Usuario e) {
-        if (e == null) return null;
-        Usuario u = new Usuario();
-        if (e.getIdUsuario() != null) {
-            u.setId(e.getIdUsuario());
-        }
-        u.setEmail(e.getEmail());
-        u.setPassword(e.getPassword());
-        u.setNombre(e.getNombre());
-        // entity doesn't have apellido field; leave null
-        u.setApellido(null);
-        u.setTelefono(e.getTelefono());
-        u.setDni(e.getDni());
-        u.setRole(e.getRol());
-        u.setActivo(e.isActivo());
-        // fechaRegistro -> createdAt
-        if (e.getFechaRegistro() != null) {
-            u.setCreatedAt(e.getFechaRegistro());
-            u.setUpdatedAt(e.getFechaRegistro());
-        }
-        return u;
-    }
-
-    private com.sigc.backend.model.Usuario toEntity(Usuario u) {
-        com.sigc.backend.model.Usuario e = new com.sigc.backend.model.Usuario();
-        if (u.getId() != null) {
-            e.setIdUsuario(u.getId());
-        }
-        e.setNombre(u.getNombre());
-        e.setEmail(u.getEmail());
-        e.setPassword(u.getPassword());
-        e.setDni(u.getDni());
-        e.setTelefono(u.getTelefono());
-        e.setRol(u.getRole());
-        e.setActivo(u.getActivo() != null ? u.getActivo() : true);
-        return e;
     }
 }
