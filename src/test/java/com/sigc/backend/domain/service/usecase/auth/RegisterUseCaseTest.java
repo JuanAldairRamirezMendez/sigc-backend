@@ -27,7 +27,7 @@ public class RegisterUseCaseTest {
         when(passwordEncoder.encodePassword("Secret123")).thenReturn("enc");
 
         var useCase = new RegisterUseCase(usuarioRepository, passwordEncoder);
-        var resp = useCase.execute(new LoginRequest("new@user.com", "Secret123"));
+        var resp = useCase.execute(new RegisterRequest("Juan Perez", "new@user.com", "Secret123", "12345678", "987654321", "PACIENTE"));
 
         assertNotNull(resp);
         assertEquals("new@user.com", resp.getEmail());
@@ -38,6 +38,6 @@ public class RegisterUseCaseTest {
     void registerEmailAlreadyRegisteredThrows() {
         when(usuarioRepository.existsByEmail("taken@user.com")).thenReturn(true);
         var useCase = new RegisterUseCase(usuarioRepository, passwordEncoder);
-        assertThrows(EmailAlreadyRegisteredException.class, () -> useCase.execute(new LoginRequest("taken@user.com", "Secret123")));
+        assertThrows(EmailAlreadyRegisteredException.class, () -> useCase.execute(new RegisterRequest("Juan Perez", "taken@user.com", "Secret123", "12345678", "987654321", "PACIENTE")));
     }
 }
