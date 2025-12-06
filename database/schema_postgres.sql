@@ -47,10 +47,15 @@ CREATE INDEX IF NOT EXISTS idx_especialidades_nombre ON especialidades (nombre);
 CREATE TABLE IF NOT EXISTS doctores (
     id_doctor SERIAL PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
+    apellido VARCHAR(255) NOT NULL,
+    telefono VARCHAR(255) NOT NULL,
+    correo VARCHAR(255) NOT NULL,
+    especialidad_id BIGINT,
     especialidad VARCHAR(255) NOT NULL,
     cupo_pacientes INTEGER DEFAULT 10,
     imagen VARCHAR(255),
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (especialidad_id) REFERENCES especialidades(id_especialidad) ON DELETE SET NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_doctores_especialidad ON doctores (especialidad);
@@ -132,12 +137,12 @@ INSERT INTO especialidades (nombre, descripcion, imagen) VALUES
 ON CONFLICT (nombre) DO NOTHING;
 
 -- Doctores (usando los mismos de la BD actual)
-INSERT INTO doctores (nombre, especialidad, cupo_pacientes, imagen) VALUES
-('Dr. Ricardo López', 'Cardiología', 10, '/uploads/doctores/ricardo-lopez.jpg'),
-('Dra. Sofía Torres', 'Pediatría', 15, '/uploads/doctores/sofia-torres.jpg'),
-('Dr. Luis Ramos', 'Odontología', 8, '/uploads/doctores/luis-ramos.jpg'),
-('Dra. Carmen Vega', 'Dermatología', 12, '/uploads/doctores/carmen-vega.jpg'),
-('Dra. Ana Gutiérrez', 'Ginecología', 10, '/uploads/doctores/ana-gutierrez.jpg')
+INSERT INTO doctores (nombre, apellido, telefono, correo, especialidad_id, especialidad, cupo_pacientes, imagen) VALUES
+('Ricardo', 'López', '987654321', 'ricardo.lopez@doctor.com', 1, 'Cardiología', 10, '/uploads/doctores/ricardo-lopez.jpg'),
+('Sofía', 'Torres', '987654322', 'sofia.torres@doctor.com', 2, 'Pediatría', 15, '/uploads/doctores/sofia-torres.jpg'),
+('Luis', 'Ramos', '987654323', 'luis.ramos@doctor.com', 3, 'Odontología', 8, '/uploads/doctores/luis-ramos.jpg'),
+('Carmen', 'Vega', '987654324', 'carmen.vega@doctor.com', 4, 'Dermatología', 12, '/uploads/doctores/carmen-vega.jpg'),
+('Ana', 'Gutiérrez', '987654325', 'ana.gutierrez@doctor.com', 5, 'Ginecología', 10, '/uploads/doctores/ana-gutierrez.jpg')
 ON CONFLICT DO NOTHING;
 
 -- Horarios de ejemplo (ajustar fechas futuras)
