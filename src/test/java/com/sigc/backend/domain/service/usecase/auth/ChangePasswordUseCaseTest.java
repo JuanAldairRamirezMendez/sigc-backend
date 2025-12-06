@@ -2,7 +2,7 @@ package com.sigc.backend.domain.service.usecase.auth;
 
 import com.sigc.backend.domain.exception.CredentialsInvalidException;
 import com.sigc.backend.domain.exception.UserNotFoundException;
-import com.sigc.backend.domain.model.Usuario;
+import com.sigc.backend.model.Usuario;
 import com.sigc.backend.domain.port.IUsuarioRepository;
 import com.sigc.backend.infrastructure.security.password.IPasswordEncoder;
 import org.junit.jupiter.api.BeforeEach;

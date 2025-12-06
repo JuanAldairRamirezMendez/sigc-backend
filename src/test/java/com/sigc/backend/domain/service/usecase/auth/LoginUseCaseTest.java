@@ -2,7 +2,7 @@ package com.sigc.backend.domain.service.usecase.auth;
 
 import com.sigc.backend.domain.exception.CredentialsInvalidException;
 import com.sigc.backend.domain.exception.UserNotFoundException;
-import com.sigc.backend.domain.model.Usuario;
+import com.sigc.backend.model.Usuario;
 import com.sigc.backend.domain.port.IUsuarioRepository;
 import com.sigc.backend.infrastructure.security.jwt.ITokenProvider;
 import com.sigc.backend.infrastructure.security.password.IPasswordEncoder;
@@ -31,10 +31,10 @@ public class LoginUseCaseTest {
     @Test
     void executeSuccessReturnsToken() {
         var usuario = new Usuario();
-        usuario.setId(1L);
+        usuario.setIdUsuario(1L);
         usuario.setEmail("user@example.com");
         usuario.setPassword("hashed");
-        usuario.setRole("USER");
+        usuario.setRol("USER");
 
         when(usuarioRepository.findByEmail("user@example.com")).thenReturn(Optional.of(usuario));
         when(passwordEncoder.matchesPassword("Secret123", "hashed")).thenReturn(true);
@@ -51,7 +51,7 @@ public class LoginUseCaseTest {
     @Test
     void executeWrongPasswordThrows() {
         var usuario = new Usuario();
-        usuario.setId(1L);
+        usuario.setIdUsuario(1L);
         usuario.setEmail("user@example.com");
         usuario.setPassword("hashed");
 

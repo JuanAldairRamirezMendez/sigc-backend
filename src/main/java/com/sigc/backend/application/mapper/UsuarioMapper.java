@@ -1,6 +1,6 @@
 package com.sigc.backend.application.mapper;
 
-import com.sigc.backend.domain.model.Usuario;
+import com.sigc.backend.model.Usuario;
 import com.sigc.backend.domain.service.usecase.auth.LoginResponse;
 
 /**
