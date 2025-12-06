@@ -45,7 +45,7 @@ public class RegisterUseCase {
      * @return Confirmación de registro creado
      * @throws EmailAlreadyRegisteredException si el email ya está registrado
      */
-    public LoginResponse execute(LoginRequest request) {
+    public LoginResponse execute(RegisterRequest request) {
         // PASO 1: Validar credenciales de registro
         CredentialValidator.ValidationResult validationResult = 
             CredentialValidator.validateRegistrationCredentials(
@@ -69,7 +69,7 @@ public class RegisterUseCase {
         // PASO 4: Crear usuario en base de datos
         // Nota: La creación del usuario será delegada al repositorio
         // Este caso de uso solo asegura la lógica de negocio
-        var nuevoUsuario = crearUsuario(request.getEmail(), encryptedPassword);
+        var nuevoUsuario = crearUsuario(request, encryptedPassword);
         usuarioRepository.save(nuevoUsuario);
         
         // PASO 5: Retornar confirmación
@@ -79,7 +79,7 @@ public class RegisterUseCase {
             0L,  // ID será asignado por la base de datos
             request.getEmail(),
             "",  // Sin token en registro
-            "USER"
+            request.getRol() != null ? request.getRol() : "USER"
         );
     }
     
@@ -88,13 +88,14 @@ public class RegisterUseCase {
      * Este método será reemplazado por una factory o builder
      * cuando el modelo Usuario sea implementado.
      */
-    private Usuario crearUsuario(String email, String encryptedPassword) {
-        // PLACEHOLDER: Será implementado completamente en PASO 6
-        // Por ahora retorna Usuario básico
+    private Usuario crearUsuario(RegisterRequest request, String encryptedPassword) {
         Usuario usuario = new Usuario();
-        usuario.setEmail(email);
+        usuario.setEmail(request.getEmail());
         usuario.setPassword(encryptedPassword);
-        usuario.setRole("USER");
+        usuario.setNombre(request.getNombre());
+        usuario.setDni(request.getDni());
+        usuario.setTelefono(request.getTelefono());
+        usuario.setRole(request.getRol() != null ? request.getRol() : "USER");
         usuario.setActivo(true);
         return usuario;
     }

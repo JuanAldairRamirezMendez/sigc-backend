@@ -6,6 +6,7 @@ import com.sigc.backend.dto.RegistroRequest;
 import com.sigc.backend.dto.RegistroResponse;
 import com.sigc.backend.domain.service.usecase.auth.LoginRequest;
 import com.sigc.backend.domain.service.usecase.auth.LoginResponse;
+import com.sigc.backend.domain.service.usecase.auth.RegisterRequest;
 import com.sigc.backend.domain.service.usecase.auth.ChangePasswordUseCase;
 import com.sigc.backend.application.service.AuthApplicationService;
 import com.sigc.backend.security.JwtUtil;
@@ -58,10 +59,14 @@ public class AuthController {
     public ResponseEntity<RegistroResponse> register(@Valid @RequestBody RegistroRequest request) {
         log.info("Recibida petición de registro para: {}", request.getEmail());
         
-        // Construir request de dominio (RegisterUseCase usa LoginRequest internamente)
-        LoginRequest registerRequest = new LoginRequest(
+        // Construir request de dominio (RegisterUseCase usa RegisterRequest)
+        RegisterRequest registerRequest = new RegisterRequest(
+            request.getNombre(),
             request.getEmail(),
-            request.getPassword()
+            request.getPassword(),
+            request.getDni(),
+            request.getTelefono(),
+            request.getRol() != null ? request.getRol() : "PACIENTE"
         );
         
         // Delegar a Application Service

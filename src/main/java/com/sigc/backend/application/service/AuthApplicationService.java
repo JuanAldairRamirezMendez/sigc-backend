@@ -60,7 +60,7 @@ public class AuthApplicationService {
      * @return Confirmación de registro
      * @throws DomainException si el email ya está registrado
      */
-    public LoginResponse register(LoginRequest request) {
+    public LoginResponse register(RegisterRequest request) {
         var registerUseCase = new RegisterUseCase(usuarioRepository, passwordEncoder);
         return registerUseCase.execute(request);
     }
