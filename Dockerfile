@@ -3,8 +3,8 @@ FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /workspace
 COPY pom.xml mvnw mvnw.cmd ./
 COPY .mvn .mvn
-RUN chmod +x mvnw || true
 COPY src ./src
+RUN chmod +x mvnw || true
 RUN ./mvnw -B -DskipTests package
 
 FROM eclipse-temurin:21-jdk-jammy
