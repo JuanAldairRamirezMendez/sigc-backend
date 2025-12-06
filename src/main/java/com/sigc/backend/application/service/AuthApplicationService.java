@@ -6,6 +6,7 @@ import com.sigc.backend.domain.service.usecase.auth.ChangePasswordUseCase;
 import com.sigc.backend.domain.service.usecase.auth.LoginRequest;
 import com.sigc.backend.domain.service.usecase.auth.LoginResponse;
 import com.sigc.backend.domain.service.usecase.auth.LoginUseCase;
+import com.sigc.backend.domain.service.usecase.auth.RegisterRequest;
 import com.sigc.backend.domain.service.usecase.auth.RegisterUseCase;
 import com.sigc.backend.infrastructure.security.jwt.ITokenProvider;
 import com.sigc.backend.infrastructure.security.password.IPasswordEncoder;
