@@ -13,8 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,15 +32,21 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/doctores")
 @CrossOrigin(origins = {"http://localhost:5173"})
-@RequiredArgsConstructor
 @Tag(name = "Doctores", description = "Gestión de doctores del sistema")
 @SecurityRequirement(name = "JWT")
 public class DoctorController {
 
-    private final DoctorApplicationService doctorApplicationService;
-    private final DoctorMapper doctorMapper;
-    private final EspecialidadApplicationService especialidadApplicationService;
-    private final NotificationService notificationService;
+    @Autowired
+    private DoctorApplicationService doctorApplicationService;
+    
+    @Autowired
+    private DoctorMapper doctorMapper;
+    
+    @Autowired
+    private EspecialidadApplicationService especialidadApplicationService;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     @org.springframework.beans.factory.annotation.Value("${app.upload.dir:uploads/}")
     private String appUploadDir; // base upload dir configurable
