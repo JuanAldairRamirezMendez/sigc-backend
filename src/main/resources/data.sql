@@ -25,10 +25,10 @@ INSERT INTO usuarios (nombre, email, password, dni, telefono, rol, activo) VALUE
 ('Juan Pérez', 'juan.perez@paciente.com', '$2a$10$QKJyBGhJSrCqCJKyxXJp5eSjuS4k5zY7CfQvY0O3Y.KqDiQQk3wSy', '23456789', '987654322', 'PACIENTE', true);
 
 -- Insertar doctores de prueba
-INSERT INTO doctores (nombre, apellido, telefono, correo, especialidad_id, especialidad, cupo_pacientes, imagen) VALUES
-('María', 'González', '987654323', 'maria.gonzalez@doctor.com', 1, 'Medicina General', 15, '/uploads/doctores/default_doctor.png'),
-('Carlos', 'Rodríguez', '987654324', 'carlos.rodriguez@doctor.com', 2, 'Cardiología', 12, '/uploads/doctores/default_doctor.png'),
-('Ana', 'Martínez', '987654325', 'ana.martinez@doctor.com', 3, 'Neurología', 8, '/uploads/doctores/default_doctor.png');
+INSERT INTO doctores (nombre, especialidad, cupo_pacientes, imagen) VALUES
+('María González', 'Medicina General', 15, '/uploads/doctores/default_doctor.png'),
+('Carlos Rodríguez', 'Cardiología', 12, '/uploads/doctores/default_doctor.png'),
+('Ana Martínez', 'Neurología', 8, '/uploads/doctores/default_doctor.png');
 
 -- Insertar horarios de prueba (con la estructura correcta)
 INSERT INTO horarios (fecha, turno, hora_inicio, hora_fin, disponible, id_doctor) VALUES
